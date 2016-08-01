@@ -6,6 +6,8 @@ Public Class Form1
     Dim WaitMillisecond As Integer
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
+
         '监听用户改变系统时间
         AddHandler SystemEvents.TimeChanged, AddressOf UserChangeTime
 
@@ -14,11 +16,9 @@ Public Class Form1
 
     Private Sub UserChangeTime(sender As Object, e As System.EventArgs)
         Me.Text = "外部修改了系统时间"
-
-        If WaitThread.ThreadState = ThreadState.Running Then
-            WaitThread.Abort()
-            WaitThread = New Thread(AddressOf WaitM)
-        End If
+        If WaitThread.ThreadState = ThreadState.WaitSleepJoin Then WaitThread.Interrupt()
+        If WaitThread.ThreadState = ThreadState.Running Then WaitThread.Abort()
+        WaitThread = New Thread(AddressOf WaitM)
 
         WaitThread.Start()
     End Sub
